@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: metallb
+  namespace: argocd
+spec:
+  generators:
+  - list:
+      elements:
+      - cluster: in-cluster
+        overlay: mgmt
+        revision: HEAD
+      - cluster: prodlab
+        overlay: prod
+        revision: HEAD
+      - cluster: testlab
+        overlay: test
+        revision: HEAD
+  template:
+    metadata:
+      name: "{{.overlay}}-metallb"
+      namespace: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: "{{.overlay}}"
+      ignoreDifferences: []
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - ApplyOutOfSyncOnly=true
+        - ServerSideApply=true
+      source:
+        repoURL: https://github.com/Dayzpd/kustomize-metallb
+        targetRevision: "{{values.revision}}"
+        path: "overlays/{{.overlay}}"
+      destination:
+        name: "{{.cluster}}"
+        namespace: metallb
