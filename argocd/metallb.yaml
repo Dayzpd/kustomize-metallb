@@ -9,13 +9,10 @@ spec:
       elements:
       - cluster: in-cluster
         overlay: mgmt
-        revision: HEAD
       - cluster: prodlab
         overlay: prod
-        revision: HEAD
       - cluster: testlab
         overlay: test
-        revision: HEAD
   template:
     metadata:
       name: "{{.overlay}}-metallb"
@@ -34,7 +31,7 @@ spec:
         - ServerSideApply=true
       source:
         repoURL: https://github.com/Dayzpd/kustomize-metallb
-        targetRevision: "{{values.revision}}"
+        targetRevision: HEAD
         path: "overlays/{{.overlay}}"
       destination:
         name: "{{.cluster}}"
